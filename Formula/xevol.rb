@@ -1,18 +1,35 @@
 class Xevol < Formula
   desc "Command-line tool to consume, remix, make, publish, and offer systems, products, and workflows"
   homepage "https://xevol.com"
-  url "https://github.com/xevol/xevol-cli/releases/download/v0.11.16/xevol-0.11.16-linux-x64.tar.gz"
-  sha256 "e44d2788bc7b6be6e89fb0840f051d99016e152dbbfe2b435318301d7ccc7e10"
-  license "UNLICENSED"
   version "0.11.16"
+  license "UNLICENSED"
 
-  # Only Linux x64 is currently supported for standalone binaries
-  # For macOS, use: npm install -g xevol
-  depends_on :linux
-  depends_on arch: :x86_64
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/xevol/xevol-cli/releases/download/v0.11.16/xevol-darwin-arm64.tar.gz"
+      sha256 "a8e237a1ed7330258cc995a9274bf71ea3280e711152af815079b798ae79283c"
+    else
+      url "https://github.com/xevol/xevol-cli/releases/download/v0.11.16/xevol-darwin-x64.tar.gz"
+      sha256 "0a120dd4ca545f786b2d1b9f34bb3256cebbb8eedbbb30d0b8df622fe27eb7f6"
+    end
+  end
+
+  on_linux do
+    depends_on arch: :x86_64
+    url "https://github.com/xevol/xevol-cli/releases/download/v0.11.16/xevol-linux-x64.tar.gz"
+    sha256 "df0ecc18e93e3f21de1d2ce0f873d2203d0b3590a3b9ef9f9d8c1d717e3143e8"
+  end
 
   def install
-    bin.install "xevol-linux-x64" => "xevol"
+    if OS.mac?
+      if Hardware::CPU.arm?
+        bin.install "xevol-darwin-arm64" => "xevol"
+      else
+        bin.install "xevol-darwin-x64" => "xevol"
+      end
+    else
+      bin.install "xevol-linux-x64" => "xevol"
+    end
     # Create xvl symlink (alias)
     bin.install_symlink "xevol" => "xvl"
   end
