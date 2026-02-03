@@ -8,6 +8,12 @@ Official Homebrew tap for Xevol tools.
 
 #### Linux (x64)
 
+**One-line install:**
+```bash
+brew install xevol/tap/xevol
+```
+
+**Or two-step:**
 ```bash
 brew tap xevol/tap
 brew install xevol
