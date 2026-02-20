@@ -7,7 +7,7 @@ class Xevol < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/xevol/xevol-cli/releases/download/v0.11.20/xevol-darwin-arm64.tar.gz"
-      sha256 "07b8cf26d557f14f3631be8b1b497404f9124ffc191e23a4ebd81d85af88ffd4"
+      sha256 "da2719ab225a2d45781df1058a44b7ea558f677bc2b6715657f6b2fa149d0188"
     else
       url "https://github.com/xevol/xevol-cli/releases/download/v0.11.20/xevol-darwin-x64.tar.gz"
       sha256 "c7c9fdcdd1ad81c95f929f71b2390e6f3289c10e8f9679313232d73a55801e14"
