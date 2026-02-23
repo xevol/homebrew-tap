@@ -1,23 +1,23 @@
 class Xevol < Formula
   desc "Command-line tool to consume, remix, make, publish, and offer systems, products, and workflows"
   homepage "https://xevol.com"
-  version "0.11.20"
+  version "0.11.21"
   license "UNLICENSED"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/xevol/xevol-cli/releases/download/v0.11.20/xevol-darwin-arm64.tar.gz"
-      sha256 "da2719ab225a2d45781df1058a44b7ea558f677bc2b6715657f6b2fa149d0188"
+      url "https://github.com/xevol/xevol-cli/releases/download/v0.11.21/xevol-darwin-arm64.tar.gz"
+      sha256 "9244354bf8633d19e87d30017e7eac434070f6af60078caca962451ae713d709"
     else
-      url "https://github.com/xevol/xevol-cli/releases/download/v0.11.20/xevol-darwin-x64.tar.gz"
-      sha256 "c7c9fdcdd1ad81c95f929f71b2390e6f3289c10e8f9679313232d73a55801e14"
+      url "https://github.com/xevol/xevol-cli/releases/download/v0.11.21/xevol-darwin-x64.tar.gz"
+      sha256 "e65f02528a72c7f10165bc8f92fb0bc43c4c2aeec64b5761fbccb53ee7f1e1a9"
     end
   end
 
   on_linux do
     depends_on arch: :x86_64
-    url "https://github.com/xevol/xevol-cli/releases/download/v0.11.20/xevol-linux-x64.tar.gz"
-    sha256 "9aa64e9a9d9ad2015afdc3ce70b41b50a7eaf5daecd7f4619e6d898c73778dfe"
+    url "https://github.com/xevol/xevol-cli/releases/download/v0.11.21/xevol-linux-x64.tar.gz"
+    sha256 "53f13029eff97d8db835f5fe02e26981a44624e05ead40743c2d96bb63c46180"
   end
 
   def install
@@ -35,7 +35,7 @@ class Xevol < Formula
   end
 
   test do
-    assert_match "0.11.20", shell_output("#{bin}/xevol --version")
+    assert_match "0.11.21", shell_output("#{bin}/xevol --version")
     assert_match "Xevol is a tool", shell_output("#{bin}/xevol --help")
   end
 end
