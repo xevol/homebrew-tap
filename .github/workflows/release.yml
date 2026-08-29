@@ -1,0 +1,128 @@
+name: Build and Publish Xevol CLI
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Published npm version to build
+        required: true
+        type: string
+
+concurrency:
+  group: xevol-public-release-${{ github.event.inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout active tap branch
+        uses: actions/checkout@v5
+        with:
+          ref: master
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Resolve published version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            version="${{ inputs.version }}"
+          else
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          test "$(npm view "xevol@$version" version --prefer-online)" = "$version"
+          printf 'VERSION=%s\n' "$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build and sign standalone binaries
+        id: hashes
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+          package_dir="$RUNNER_TEMP/package"
+          artifacts="$GITHUB_WORKSPACE/artifacts"
+          mkdir -p "$package_dir" "$artifacts"
+          npm install --prefix "$package_dir" "xevol@$VERSION"
+          entry="$package_dir/node_modules/xevol/dist/index.js"
+          test "$("$package_dir/node_modules/.bin/xevol" --version)" = "$VERSION"
+
+          bun build --compile --target=bun-linux-x64 "$entry" --outfile="$artifacts/xevol-linux-x64"
+          bun build --compile --target=bun-darwin-x64 "$entry" --outfile="$artifacts/xevol-darwin-x64"
+          bun build --compile --target=bun-darwin-arm64 "$entry" --outfile="$artifacts/xevol-darwin-arm64"
+          chmod +x "$artifacts"/xevol-*
+          codesign --force --sign - "$artifacts/xevol-darwin-x64"
+          codesign --force --sign - "$artifacts/xevol-darwin-arm64"
+
+          for binary in xevol-linux-x64 xevol-darwin-x64 xevol-darwin-arm64; do
+            tar -C "$artifacts" -czf "$artifacts/$binary.tar.gz" "$binary"
+          done
+          if [[ "$(uname -m)" == "arm64" ]]; then
+            native="$artifacts/xevol-darwin-arm64"
+          else
+            native="$artifacts/xevol-darwin-x64"
+          fi
+          test "$("$native" --version)" = "$VERSION"
+
+          {
+            printf 'SHA_LINUX=%s\n' "$(shasum -a 256 "$artifacts/xevol-linux-x64.tar.gz" | awk '{print $1}')"
+            printf 'SHA_DARWIN_X64=%s\n' "$(shasum -a 256 "$artifacts/xevol-darwin-x64.tar.gz" | awk '{print $1}')"
+            printf 'SHA_DARWIN_ARM64=%s\n' "$(shasum -a 256 "$artifacts/xevol-darwin-arm64.tar.gz" | awk '{print $1}')"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish public binary release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: Xevol CLI v${{ steps.version.outputs.VERSION }}
+          make_latest: true
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/xevol-linux-x64.tar.gz
+            artifacts/xevol-darwin-x64.tar.gz
+            artifacts/xevol-darwin-arm64.tar.gz
+          body: |
+            Xevol CLI ${{ steps.version.outputs.VERSION }} standalone binaries.
+
+            Install with `brew install xevol/tap/xevol` or `npm install -g xevol@${{ steps.version.outputs.VERSION }}`.
+
+      - name: Render and install Homebrew formula
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          SHA_LINUX: ${{ steps.hashes.outputs.SHA_LINUX }}
+          SHA_DARWIN_X64: ${{ steps.hashes.outputs.SHA_DARWIN_X64 }}
+          SHA_DARWIN_ARM64: ${{ steps.hashes.outputs.SHA_DARWIN_ARM64 }}
+        run: |
+          set -euo pipefail
+          ./scripts/render-formula.sh > Formula/xevol.rb
+          brew ruby -- -c Formula/xevol.rb
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install --formula "$GITHUB_WORKSPACE/Formula/xevol.rb"
+          test "$("$(brew --prefix xevol)/bin/xevol" --version)" = "$VERSION"
+          "$(brew --prefix xevol)/bin/xevol" --help | grep -q "Xevol is a tool"
+
+      - name: Publish Homebrew formula
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/xevol.rb
+          if ! git diff --cached --quiet; then
+            git commit -m "Update xevol to v$VERSION"
+            git push origin HEAD:master
+          fi
