@@ -6,18 +6,18 @@ class Xevol < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/xevol/stack/releases/download/v0.12.7/xevol-darwin-arm64.tar.gz"
-      sha256 "62df60b617ee10eb07edddd7e14a93f30d2c6ff7b61914bf87c826f32526590a"
+      url "https://github.com/xevol/homebrew-tap/releases/download/v0.12.7/xevol-darwin-arm64.tar.gz"
+      sha256 "dabd7c62536b90c1d6fefaeff1bfea6680a0eb65996ea1e4838220fbfd29badd"
     else
-      url "https://github.com/xevol/stack/releases/download/v0.12.7/xevol-darwin-x64.tar.gz"
-      sha256 "18a63a84fa854c9310174e5b080b19ead4185a89667ec3a98176bd38745a6ce4"
+      url "https://github.com/xevol/homebrew-tap/releases/download/v0.12.7/xevol-darwin-x64.tar.gz"
+      sha256 "abfe144ce62ff69eb366e7c69d51e4ed455a92456b3f101b06506cf56139fa0b"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/xevol/stack/releases/download/v0.12.7/xevol-linux-x64.tar.gz"
-      sha256 "8038910fc0bba425a2d1e4826420ebebc12533e7e18e0c0bf3bf48742e875d1c"
+      url "https://github.com/xevol/homebrew-tap/releases/download/v0.12.7/xevol-linux-x64.tar.gz"
+      sha256 "b410fb328dbb3bf8fb1410d36c80768c0c0e5c73b612e3b441eb76d8be086796"
     end
   end
 
