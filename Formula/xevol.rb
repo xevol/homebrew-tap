@@ -1,23 +1,23 @@
 class Xevol < Formula
   desc "Command-line client for Xevol systems, products, and workflows"
   homepage "https://xevol.com"
-  version "0.12.10"
+  version "0.13.0"
   license "UNLICENSED"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/xevol/homebrew-tap/releases/download/v0.12.10/xevol-darwin-arm64.tar.gz"
-      sha256 "5d7a4ba1dd54674633a788c9a9d77e01f9fc66e82f95ceaa711b0f202ae5fb9f"
+      url "https://github.com/xevol/homebrew-tap/releases/download/v0.13.0/xevol-darwin-arm64.tar.gz"
+      sha256 "a3fa6361b70d3f4803a7b42c9a27c77183aa454b5b603d7293d6927d8f7671b9"
     else
-      url "https://github.com/xevol/homebrew-tap/releases/download/v0.12.10/xevol-darwin-x64.tar.gz"
-      sha256 "0f13cc59907481e7e2b0bad93101c548ddb9357e6b76d8f32fa2fbea34fd3887"
+      url "https://github.com/xevol/homebrew-tap/releases/download/v0.13.0/xevol-darwin-x64.tar.gz"
+      sha256 "885d07367100382c3b59e38c18da426c47cd571db14535da2cad0602398647f9"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/xevol/homebrew-tap/releases/download/v0.12.10/xevol-linux-x64.tar.gz"
-      sha256 "db70ac98854278acfa1ed1e0cdf88a2067e4c3f71b03c9d93c102fba2674c902"
+      url "https://github.com/xevol/homebrew-tap/releases/download/v0.13.0/xevol-linux-x64.tar.gz"
+      sha256 "117da0240ddcfffb6b81264c28ac3602f1f61877bf49fb27dbacc68134625b79"
     end
   end
 
@@ -35,7 +35,7 @@ class Xevol < Formula
   end
 
   test do
-    assert_match "0.12.10", shell_output("#{bin}/xevol --version")
+    assert_match "0.13.0", shell_output("#{bin}/xevol --version")
     assert_match "Xevol is a tool", shell_output("#{bin}/xevol --help")
   end
 end
